@@ -43,21 +43,21 @@ def usuario():
           
 
             
-            login_user(novo_usuario)
+            login_user(novo_usuario, remember=True)
             
             
-            flash("Cadastro bem-sucedido. Redirecionando para matérias.", "success")
+            
             
             
             return redirect(url_for('perfil'))
            
         except Exception as e:
            
-            print(f"Erro ao cadastrar usuário: {str(e)}")
+            
         
             db.session.rollback()
          
-            flash("Erro ao cadastrar usuário.", "danger")
+           
             
 
     return render_template('usuario.html', form=form)
@@ -73,7 +73,7 @@ def login():
         usuario = Usuario.query.filter_by(email=email, senha=senha).first()
 
         if usuario:
-            login_user(usuario)
+            login_user(usuario, remember=True)
 
             # Redireciona para a página de perfil após o login bem-sucedido
             next_url = request.args.get('next')
@@ -115,7 +115,7 @@ def materias():
             db.session.commit()
             
             
-            flash("Cadastro bem-sucedido. Redirecionando para listar matérias.", "success")
+            
             
             return redirect(url_for('listarmaterias'))
             
@@ -123,7 +123,7 @@ def materias():
            
             db.session.rollback()
            
-            flash("Erro ao cadastrar materia", "danger")
+           
             
     else:
         
@@ -145,28 +145,24 @@ def provas():
         form.process() 
     if form.validate_on_submit():
         try:
-            print("4")
+           
             nova_prova = Provas(data=form.data.data, hora=form.hora.data, valor=form.valor.data, desc = form.desc.data, idmaterias = form.idmaterias.data, idusuario = form.idusuario.data)
-            print("5")
+          
             db.session.add(nova_prova)
-            print("6")
+           
             db.session.commit()
-            print("7")
-            print("8")
-            flash("Cadastro bem-sucedido. Redirecionando para listar provas.", "success")
-            print("9")
+           
+            
             return redirect(url_for('listarprovas'))
-            print("10")
+          
         except Exception as e:
-            print("11")
-            print(f"Erro ao cadastrar prova: {str(e)}")
-            print("12")
+           
+           
+          
             db.session.rollback()
-            print("13")
-            flash("Erro ao cadastrar prova", "danger")
-            print("14")
+           
     return render_template('provas.html', form=form)
-    print("15")
+  
 
 @app.route("/tarefas", methods = ["GET", "POST"])
 def tarefas():
@@ -177,46 +173,20 @@ def tarefas():
         form.process() 
     if form.validate_on_submit():
         try:
-            print("4")
+           
             nova_tarefa = Tarefas(data=form.data.data, hora=form.hora.data, valor=form.valor.data, desc = form.desc.data, idmaterias = form.idmaterias.data, idusuario = form.idusuario.data)
-            print("5")
+          
             db.session.add(nova_tarefa)
-            print("6")
+           
             db.session.commit()
-            print("7")
-            print("8")
-            flash("Cadastro bem-sucedido. Redirecionando para listar tarefas.", "success")
-            print("9")
+         
             return redirect(url_for('listartarefas'))
-            print("10")
+          
         except Exception as e:
-            print("11")
-            print(f"Erro ao cadastrar tarefa: {str(e)}")
-            print("12")
-            db.session.rollback()
-            print("13")
-            flash("Erro ao cadastrar tarefa", "danger")
-            print("14")
+             db.session.rollback()
     return render_template('tarefas.html', form=form)
-    print("15")
+   
 
-
-
-@app.route('/redirecionar_para_cadastro', methods=['POST'])
-def redirecionar_para_cadastro():
-    # Lógica adicional, se necessário, antes do redirecionamento
-    # ...
-
-    # Redireciona para a página de cadastro
-    return redirect(url_for("usuario"))
-
-@app.route('/redirecionar_para_login', methods=['POST'])
-def redirecionar_para_login():
-    # Lógica adicional, se necessário, antes do redirecionamento
-    # ...
-
-    # Redireciona para a página de cadastro
-    return redirect(url_for("login"))
 
 
 @app.route('/calendario')
@@ -254,13 +224,14 @@ def serialize_object(obj):
 @app.route('/eventos_calendario')
 def eventos_calendario():
     try:
+
         materias_from_db = Materias.query.filter_by(usuario=current_user).all()
         provas_from_db = Provas.query.filter_by(usuario=current_user).all()
         tarefas_from_db = Tarefas.query.filter_by(usuario=current_user).all()
 
         eventos_materias = [
             {
-                'title': f"{materia.nome} Professor: {materia.professor} - \nHora:{materia.hora}",
+                'title': f"{materia.nome} Professor: {materia.professor} - \nHora:{materia.hora.strftime('%H:%M')}",
                 'start': materia.data.strftime('%Y-%m-%d'),
                 'materia': serialize_object(materia),
             }
@@ -269,7 +240,7 @@ def eventos_calendario():
 
         eventos_provas = [
             {
-                'title': f"{prova.desc} \nValor: {prova.valor} - \nMatéria: {prova.materia} - \nHora:{prova.hora}",
+                'title': f"{prova.desc} \nValor: {prova.valor} - \nMatéria: {prova.materia} - \nHora:{prova.hora.strftime('%H:%M')}",
                 'start': prova.data.strftime('%Y-%m-%d'),
                 'prova': serialize_object(prova),
             }
@@ -280,7 +251,7 @@ def eventos_calendario():
             {
                 'title': f"{tarefa.desc}\n"
                          f"Valor: {tarefa.valor} -\n"
-                         f"Matéria: {tarefa.materia} - \nHora:{tarefa.hora}",
+                         f"Matéria: {tarefa.materia} - \nHora:{tarefa.hora.strftime('%H:%M')}",
                 'start': tarefa.data.strftime('%Y-%m-%d'),
                 'tarefa': serialize_object(tarefa),
             }
@@ -393,7 +364,7 @@ def atualizar_materia(idmaterias):
 
     # Verifique se a matéria existe
     if not materia:
-        flash("Matéria não encontrada.", "danger")
+        
         return redirect(url_for('listarmaterias'))
 
     # Crie um formulário preenchido com os detalhes atuais da matéria
@@ -406,7 +377,7 @@ def atualizar_materia(idmaterias):
         # Realize o commit para salvar as alterações no banco de dados
         db.session.commit()
 
-        flash("Matéria atualizada com sucesso.", "success")
+       
         return redirect(url_for('listarmaterias'))
 
     return render_template('atualizarmateria.html', form=form, materia=materia)
@@ -418,7 +389,7 @@ def atualizar_prova(idprovas):
 
     # Verifique se a prova existe
     if not prova:
-        flash("Prova não encontrada.", "danger")
+       
         return redirect(url_for('listarprovas'))
 
     # Crie um formulário preenchido com os detalhes atuais da prova
@@ -434,7 +405,7 @@ def atualizar_prova(idprovas):
         # Realize o commit para salvar as alterações no banco de dados
         db.session.commit()
 
-        flash("Prova atualizada com sucesso.", "success")
+        
         return redirect(url_for('listarprovas'))
 
     return render_template('atualizarprova.html', form=form, prova=prova)
@@ -446,7 +417,7 @@ def atualizar_tarefa(idtarefas):
 
     # Verifique se a prova existe
     if not tarefa:
-        flash("Tarefa não encontrada.", "danger")
+       
         return redirect(url_for('listartarefas'))
 
     # Crie um formulário preenchido com os detalhes atuais da prova
@@ -462,7 +433,7 @@ def atualizar_tarefa(idtarefas):
         # Realize o commit para salvar as alterações no banco de dados
         db.session.commit()
 
-        flash("Tarefa atualizada com sucesso.", "success")
+      
         return redirect(url_for('listartarefas'))
 
     return render_template('atualizartarefa.html', form=form, tarefa=tarefa)

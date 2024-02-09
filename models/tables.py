@@ -57,12 +57,13 @@ class Materias(db.Model):
     def to_dict(self):
         return {
             'idmaterias': self.idmaterias,
-            'title': f"{self.nome} Professor: {self.professor}",
+            'title': f"{self.nome} Professor: {self.professor} Hora: {self.hora.strftime('%H:%M')}",
             'start': self.data.isoformat(),
             'extendedProps': {
                 'materia': {
                     'nome': self.nome,
                     'professor': self.professor,
+                    'hora': self.hora,
                 }
             }
         }
@@ -94,7 +95,7 @@ class Provas(db.Model):
     def to_dict(self):
         return {
             'idprovas': self.idprovas,
-            'title': f"{self.desc} Valor: {self.valor} Matéria: {self.materia.nome}",
+            'title': f"{self.desc} Valor: {self.valor} Matéria: {self.materia.nome} Hora: {self.hora.strftime('%H:%M')}",
             'start': self.data.isoformat(),
             'extendedProps': {
                 'prova': {
@@ -136,7 +137,7 @@ class Tarefas(db.Model):
     def to_dict(self):
         return {
             'idtarefas': self.idtarefas,
-            'title': f"{self.desc} Valor: {self.valor} Matéria: {self.materia.nome}",
+            'title': f"{self.desc} Valor: {self.valor} Matéria: {self.materia.nome} Hora: {self.hora.strftime('%H:%M')}",
             'start': self.data.isoformat(),
             'extendedProps': {
                 'tarefa': {
