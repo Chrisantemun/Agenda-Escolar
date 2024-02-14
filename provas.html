@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <form method="POST" action="{{ url_for('provas') }}">
+    {{ form.hidden_tag() }}  
+    {{ form.csrf_token() }}  
+    
+    <style>
+      .border-container {
+        border: 1px solid #000000;
+        padding: 10px;
+        width: 300px;
+        margin: 0 auto; 
+      }
+      
+      .custom-btn-entrar {
+        background-color: #F08080;
+        border: 1px solid #000;
+        color: #fff;
+      }
+
+      .custom-btn-entrar:hover {
+        background-color: #D46A6A;
+        border: 1px solid #000;
+      }
+
+      .form-group label {
+        font-weight: bold;
+      }
+    </style>
+
+    <div class="text-center mt-5 border-container">
+      <h2>Provas</h2>
+      
+      <div class="form-group d-flex flex-column align-items-center mb-3">
+        <label for="{{ form.data.id }}" class="mb-2">Data</label>
+        {{ form.data(class="form-control rounded-pill", placeholder="Data", style="width: 200px;") }}
+        {% for error in form.data.errors %}
+          <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="form-group d-flex flex-column align-items-center mb-3">
+        <label for="{{ form.hora.id }}" class="mb-2">Hora</label>
+        {{ form.hora(class="form-control rounded-pill", placeholder="HH:MM", style="width: 200px;") }}
+        {% for error in form.hora.errors %}
+          <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="form-group d-flex flex-column align-items-center mb-3">
+        <label for="{{ form.valor.id }}" class="mb-2">Valor</label>
+        {{ form.valor(class="form-control rounded-pill", placeholder="Valor", style="width: 200px;") }}
+        {% for error in form.valor.errors %}
+          <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="form-group d-flex flex-column align-items-center mb-3">
+        <label for="{{ form.desc.id }}" class="mb-2">Descrição</label>
+        {{ form.desc(class="form-control rounded-pill", placeholder="Descrição", style="width: 200px;") }}
+        {% for error in form.desc.errors %}
+          <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="form-group d-flex flex-column align-items-center mb-3">
+        <label for="{{ form.idmaterias.id }}" class="mb-2">Matéria</label>
+      {{ form.idmaterias(class="form-control rounded-pill") }}
+      </div>
+    
+      
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+      <script>
+        $(document).ready(function(){
+          $('#{{ form.hora.id }}').timepicker({
+            showMeridian: false,
+          });
+
+          // Ao enviar o formulário, formate a hora antes de enviar para o servidor
+          $('form').submit(function() {
+            var horaInput = $('#{{ form.hora.id }}');
+            var horaFormatada = formatarHoraParaBancoDeDados(horaInput.val());
+            horaInput.val(horaFormatada);
+          });
+
+          function formatarHoraParaBancoDeDados(hora) {
+            // Use o Moment.js para formatar a hora para o formato desejado
+            var momento = moment(hora, 'HH:mm A');
+            return momento.format('HH:mm:ss');
+          }
+        });
+      </script>
+
+      <button type="submit" class="btn custom-btn-entrar rounded-pill">Salvar</button>
+    </div>
+  </form>
+{% endblock %}
