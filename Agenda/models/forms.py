@@ -13,6 +13,8 @@ class UsuarioForm(FlaskForm):
     nome = StringField('Nome', validators=[InputRequired()])
     email = StringField('E-mail', validators=[InputRequired("Por favor, digite seu e-mail."), Email("Insira um e-mail válido.")])
     password = PasswordField('Senha', validators=[DataRequired("Por favor, digite sua senha.")])
+    remember_me = BooleanField('Lembrar-me')
+    
     
 
 class MateriasForm(FlaskForm):
